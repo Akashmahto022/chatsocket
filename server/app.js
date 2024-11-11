@@ -15,11 +15,14 @@ const io = new Server(server, {
     }
 });
 
+
 app.use(cors())
+app.use(express.json())
 
 app.get("/", (req, res)=>{
     res.send("hello Akash")
 })
+
 
 io.on("connection", (socket)=>{
     console.log(`user connected with socket id=${socket.id}`)
@@ -33,6 +36,19 @@ io.on("connection", (socket)=>{
         socket.join(room)
         console.log(`user joined ${room} ${socket.id}`)
     })
+
+    // Relay offers, answers, and ICE candidates
+    socket.on("offer", (data) => {
+        socket.broadcast.emit("offer", data);
+    });
+
+    socket.on("answer", (data) => {
+        socket.broadcast.emit("answer", data);
+    });
+
+    socket.on("candidate", (data) => {
+        socket.broadcast.emit("candidate", data);
+    });
 
     socket.on('disconnect', ()=>{
     console.log(`user disconnect with socket id=${socket.id}`)
